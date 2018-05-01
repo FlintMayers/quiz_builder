@@ -2,13 +2,14 @@
 
 namespace App\Form\Type;
 
+use App\Entity\Answer;
 use App\Entity\Tag;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TagType extends AbstractType
+class AnswerType extends AbstractType
 {
     /**
      * @param FormBuilderInterface $builder
@@ -16,18 +17,7 @@ class TagType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('name');
-        $builder->add(
-            'answers',
-            CollectionType::class,
-            [
-                'entry_type' => AnswerType::class,
-                'entry_options' => ['label' => false],
-                'allow_add' => true,
-                'by_reference' => false,
-                'allow_delete' => true,
-            ]
-        );
+        $builder->add('content');
     }
 
     /**
@@ -37,7 +27,7 @@ class TagType extends AbstractType
     {
         $resolver->setDefaults(
             [
-                'data_class' => Tag::class,
+                'data_class' => Answer::class,
             ]
         );
     }

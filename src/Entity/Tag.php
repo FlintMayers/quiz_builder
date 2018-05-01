@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -27,6 +28,16 @@ class Tag
      * @ORM\JoinColumn("task_id", referencedColumnName="id")
      */
     private $task;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Answer", mappedBy="Tag", cascade={"persist"})
+     */
+    protected $answers;
+
+    public function __construct()
+    {
+        $this->answers = new ArrayCollection();
+    }
 
     /**
      * @return mixed
@@ -71,5 +82,22 @@ class Tag
         $this->task = $task;
 
         return $this;
+    }
+
+    public function getAnswers()
+    {
+        return $this->answers;
+    }
+
+    public function addAnswer(Answer $answer)
+    {
+        $answer->setTag($this);
+
+        $this->answers->add($answer);
+    }
+
+    public function removeAnswer(Answer $answer)
+    {
+        $this->answers->removeElement($answer);
     }
 }

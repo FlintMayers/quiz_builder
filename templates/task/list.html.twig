@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <h1>Tasks</h1>
+    <ul>
+        {% for task in tasks %}
+            <li>
+                <a href="{{ path('create_task') }}">
+                    {{ task.description|e }}
+                </a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}
