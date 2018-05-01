@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Answer
 {
     /**
+     * @var int $id
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
      * @ORM\Column(type="integer")
@@ -18,15 +19,22 @@ class Answer
     private $id;
 
     /**
+     * @var string $content
      * @ORM\Column(type="string")
      */
     private $content;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Tag", inversedBy="answers")
-     * @ORM\JoinColumn("tag_id", referencedColumnName="id")
+     * @var bool $isCorrect
+     * @ORM\Column(type="boolean")
      */
-    private $tag;
+    private $isCorrect;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Question", inversedBy="answers")
+     * @ORM\JoinColumn("question_id", referencedColumnName="id")
+     */
+    private $question;
 
     /**
      * @return mixed
@@ -61,41 +69,40 @@ class Answer
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
-    public function getTag()
+    public function isCorrect(): bool
     {
-        return $this->tag;
+        return $this->isCorrect;
     }
 
     /**
-     * @param mixed $tag
-     *
-     * @return Answer
+     * @param bool $isCorrect
+     * @return $this
      */
-    public function setTag($tag)
+    public function setIsCorrect(bool $isCorrect): self
     {
-        $this->tag = $tag;
-
+        $this->isCorrect = $isCorrect;
         return $this;
     }
 
-//    public function addTask(Task $task)
-//    {
-//        if (!$this->tasks->contains($task)) {
-//            $this->tasks->add($task);
-//        }
-//    }
+    /**
+     * @return mixed
+     */
+    public function getQuestion()
+    {
+        return $this->question;
+    }
 
-//    public function getTask()
-//    {
-//        return $this->task;
-//    }
-//
-//    public function setTask(Task $task)
-//    {
-//        $this->task = $task;
-//
-//        return $this;
-//    }
+    /**
+     * @param mixed $question
+     *
+     * @return $this
+     */
+    public function setQuestion($question): self
+    {
+        $this->question = $question;
+
+        return $this;
+    }
 }

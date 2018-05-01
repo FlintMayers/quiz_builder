@@ -1,18 +1,16 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    <h3 class="text-center mt-5">Quiz builder</h3>
     {{ form_start(form) }}
-    {# render the task's only field: description #}
-    {{ form_row(form.description) }}
-    {#<ul class="answers" data-prototype="{{ form_widget(form.tags.answers.vars.prototype)|e('html_attr') }}">#}
-        {#<li>answer</li>#}
-    {#</ul>#}
-    {#{{ dump(form.tags) }}#}
-    <h3>Tags</h3>
-    <ul class="tags" data-prototype="{{ form_widget(form.tags.vars.prototype)|e('html_attr') }}">
+    <div class="form-group">
+        {{ form_row(form.title) }}
+    </div>
+    <h5>Questions</h5>
+    <ul class="questions" data-prototype="{{ form_widget(form.questions.vars.prototype)|e('html_attr') }}">
         {# iterate over each existing tag and render its only field: name #}
-        {% for tag in form.tags %}
-            <li>{{ form_row(tag.name) }}</li>
+        {% for question in form.questions %}
+            <li>{{ form_row(question.name) }}</li>
             {#<ul class="answers" data-prototype="{{ form_widget(form.answers.vars.prototype)|e('html_attr') }}">#}
                 {#<li>answer</li>#}
             {#</ul>#}
@@ -25,15 +23,15 @@
         var $collectionHolder;
 
         // setup an "add a tag" link
-        var $addTagLink = $('<a href="#" class="add_tag_link">Add a tag</a>');
-        var $newLinkLi = $('<li></li>').append($addTagLink);
+        var $addQuestionLink = $('<a href="#" class="add_question_link">Add a question</a>');
+        var $newLinkLi = $('<li></li>').append($addQuestionLink);
 
-        jQuery(document).ready(function() {
+        $(document).ready(function() {
             // Get the ul that holds the collection of tags
-            $collectionHolder = $('ul.tags');
+            $collectionHolder = $('ul.questions');
 
             $collectionHolder.find('li').each(function() {
-                addTagFormDeleteLink($(this));
+                addQuestionFormDeleteLink($(this));
             });
 
             // add the "add a tag" anchor and li to the tags ul
@@ -43,16 +41,16 @@
             // index when inserting a new item (e.g. 2)
             $collectionHolder.data('index', $collectionHolder.find(':input').length);
 
-            $addTagLink.on('click', function(e) {
+            $addQuestionLink.on('click', function(e) {
                 // prevent the link from creating a "#" on the URL
                 e.preventDefault();
 
                 // add a new tag form (see next code block)
-                addTagForm($collectionHolder, $newLinkLi);
+                addQuestionForm($collectionHolder, $newLinkLi);
             });
         });
 
-        function addTagForm($collectionHolder, $newLinkLi) {
+        function addQuestionForm($collectionHolder, $newLinkLi) {
             // Get the data-prototype explained earlier
             var prototype = $collectionHolder.data('prototype');
 
@@ -75,19 +73,19 @@
             // Display the form in the page in an li, before the "Add a tag" link li
             var $newFormLi = $('<li></li>').append(newForm);
             $newLinkLi.before($newFormLi);
-            addTagFormDeleteLink($newFormLi);
+            addQuestionFormDeleteLink($newFormLi);
         }
 
-        function addTagFormDeleteLink($tagFormLi) {
-            var $removeFormA = $('<a href="#">delete this tag</a>');
-            $tagFormLi.append($removeFormA);
+        function addQuestionFormDeleteLink($questionFormLi) {
+            var $removeFormA = $('<a href="#">delete this question</a>');
+            $questionFormLi.append($removeFormA);
 
             $removeFormA.on('click', function(e) {
                 // prevent the link from creating a "#" on the URL
                 e.preventDefault();
 
                 // remove the li for the tag form
-                $tagFormLi.remove();
+                $questionFormLi.remove();
             });
         }
     </script>

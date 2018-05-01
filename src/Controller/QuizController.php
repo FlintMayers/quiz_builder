@@ -3,99 +3,119 @@
 namespace App\Controller;
 
 use App\Entity\Answer;
-use App\Entity\Task;
-use App\Entity\Tag;
-use App\Form\Type\TaskType;
+use App\Entity\Quiz;
+use App\Entity\Question;
+use App\Form\Type\QuizType;
 use Doctrine\Common\Collections\ArrayCollection;
 use http\Env\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 
-class TaskController extends Controller
+class QuizController extends Controller
 {
     /**
-     * @Route("/tasks/create", name="create_task")
+     * @Route("/quiz/create", name="create_quiz")
+     * @param Request $request
      */
     public function new(Request $request)
     {
-        $task = new Task();
-        $task->setDescription('quiz');
+        $quiz = new Quiz();
 
-        // dummy code - this is here just so that the Task has some tags
-        // otherwise, this isn't an interesting example
-//        $answer1 = new Answer();
-//        $answer1->setContent('atsakymas1');
-//
-//        $answer11 = new Answer();
-//        $answer11->setContent('atsakymas11');
-//
-//        $tag1 = new Tag();
-//        $answer1->setTag($tag1);
-//        $answer11->setTag($tag1);
-//        $tag1->setName('tag1');
-//        $tag1->getAnswers()->add($answer1);
-//        $tag1->getAnswers()->add($answer11);
-//        $tag1->setTask($task);
-//        $task->getTags()->add($tag1);
-//
-//        $answer2 = new Answer();
-//        $answer2->setContent('atsakymas2');
-//        $answer3 = new Answer();
-//        $answer3->setContent('atsakymas3');
-//        $tag2 = new Tag();
-//        $answer2->setTag($tag2);
-//        $answer3->setTag($tag2);
-//        $tag2->setName('tag2');
-//        $tag2->setTask($task);
-//        $tag2->getAnswers()->add($answer2);
-//        $tag2->getAnswers()->add($answer3);
-//        $task->getTags()->add($tag2);
-//
-//        $tag3 = new Tag();
-//        $tag3->setName('tag3');
-//        $tag3->setTask($task);
-//        $task->getTags()->add($tag3);
-        // end dummy code
+//        $this->setDummyData($quiz);
 
-        $em = $this->getDoctrine()->getManager();
-//        dump($form->getData());die;
-        $em->persist($task);
-        $em->flush();
-
-        $form = $this->createForm(TaskType::class, $task);
+        $form = $this->createForm(QuizType::class, $quiz);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // ... maybe do some form processing, like saving the Task and Tag objects
             $em = $this->getDoctrine()->getManager();
-            dump($form->getData());die;
-            $em->persist($task);
+            $em->persist($quiz);
             $em->flush();
 
         }
 
-        return $this->render('task/new.html.twig', array(
-            'form' => $form->createView(),
-        ));
+        return $this->render(
+            'quiz/new.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 
     /**
-     * @Route("/tasks", name="list_tasks")
+     * @Route("/quizzes", name="list_quizzes")
      */
     public function list()
     {
         $em = $this->getDoctrine()->getManager();
 
-        $tasks = $em->getRepository(Task::class)->findAll();
+        $quizzes = $em->getRepository(Quiz::class)->findAll();
 
         return $this->render(
-            'task/list.html.twig',
+            'quiz/list.html.twig',
             [
-                'tasks' => $tasks,
+                'quizzes' => $quizzes,
             ]
         );
+    }
+
+    /**
+     * @Route("/quiz/{id}/delete", name="delete_quiz")
+     */
+    public function delete(Request $request, $id)
+    {
+//        dump($quiz);die;
+//        $em = $this->getDoctrine()->getManager();
+//        $quiz = $em->getRepository(Quiz::class)->find($quiz);
+//        $em->remove($quiz);
+//
+//        $em->flush();
+    }
+
+    /**
+     * @param Quiz $quiz
+     */
+    private function setDummyData($quiz): void
+    {
+        $quiz->setTitle('quiz');
+
+        $answer1 = new Answer();
+        $answer1->setContent('atsakymas1');
+
+        $answer11 = new Answer();
+        $answer11->setContent('atsakymas11');
+
+        $question1 = new Question();
+        $answer1->setQuestion($question1);
+        $answer11->setQuestion($question1);
+        $question1->setName('question1');
+        $question1->getAnswers()->add($answer1);
+        $question1->getAnswers()->add($answer11);
+        $question1->setQuiz($quiz);
+        $quiz->getQuestions()->add($question1);
+
+        $answer2 = new Answer();
+        $answer2->setContent('atsakymas2');
+        $answer22 = new Answer();
+        $answer22->setContent('atsakymas22');
+        $question2 = new Question();
+        $answer2->setQuestion($question2);
+        $answer22->setQuestion($question2);
+        $question2->setName('question2');
+        $question2->setQuiz($quiz);
+        $question2->getAnswers()->add($answer2);
+        $question2->getAnswers()->add($answer22);
+        $quiz->getQuestions()->add($question2);
+
+        $question3 = new Question();
+        $question3->setName('question3');
+        $question3->setQuiz($quiz);
+        $quiz->getQuestions()->add($question3);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($quiz);
+        $em->flush();
     }
 
 //    /**
