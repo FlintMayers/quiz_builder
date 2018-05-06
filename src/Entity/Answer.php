@@ -71,16 +71,16 @@ class Answer
     /**
      * @return bool
      */
-    public function isCorrect(): bool
+    public function isCorrect()
     {
         return $this->isCorrect;
     }
 
     /**
-     * @param bool $isCorrect
+     * @param $isCorrect
      * @return $this
      */
-    public function setIsCorrect(bool $isCorrect): self
+    public function setIsCorrect($isCorrect): self
     {
         $this->isCorrect = $isCorrect;
         return $this;

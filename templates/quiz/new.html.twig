@@ -4,19 +4,22 @@
     <h3 class="text-center mt-5">Quiz builder</h3>
     {{ form_start(form) }}
     <div class="form-group">
-        {{ form_row(form.title) }}
+        {{ form_row(form.title, {'attr': {'class': 'form-control'}} ) }}
     </div>
     <h5>Questions</h5>
-    <ul class="questions" data-prototype="{{ form_widget(form.questions.vars.prototype)|e('html_attr') }}">
+    <ul class="questions" data-answer-prototype="{{ form_widget(form.questions.vars.prototype.children.answers.vars.prototype)|e('html_attr') }}" data-prototype="{{ form_widget(form.questions.vars.prototype)|e('html_attr') }}">
         {# iterate over each existing tag and render its only field: name #}
         {% for question in form.questions %}
             <li>{{ form_row(question.name) }}</li>
-            {#<ul class="answers" data-prototype="{{ form_widget(form.answers.vars.prototype)|e('html_attr') }}">#}
-                {#<li>answer</li>#}
-            {#</ul>#}
+            {% for answer in question.answers %}
+                <li>{{ form_row(answer.content) }}</li>
+                <li>{{ form_row(answer.isCorrect) }}</li>
+            {% endfor %}
         {% endfor %}
     </ul>
-    {{ form_end(form) }}
+
+    {{ form_row(form.save, {'attr': {'class': 'btn btn-primary'}} ) }}
+    {{ form_end(form, {'render_rest': false}) }}
 {% endblock %}
 {% block javascripts %}
     <script>
@@ -26,15 +29,18 @@
         var $addQuestionLink = $('<a href="#" class="add_question_link">Add a question</a>');
         var $newLinkLi = $('<li></li>').append($addQuestionLink);
 
+        var $answerPrototype = $('ul.questions').data('answer-prototype');
+        // console.log($('ul.questions').data('prototype'));
+
         $(document).ready(function() {
-            // Get the ul that holds the collection of tags
+            // Get the ul that holds the collection of questions
             $collectionHolder = $('ul.questions');
 
             $collectionHolder.find('li').each(function() {
                 addQuestionFormDeleteLink($(this));
             });
 
-            // add the "add a tag" anchor and li to the tags ul
+            // add the "add a question" anchor and li to the tags ul
             $collectionHolder.append($newLinkLi);
 
             // count the current form inputs we have (e.g. 2), use that as the new
@@ -48,6 +54,40 @@
                 // add a new tag form (see next code block)
                 addQuestionForm($collectionHolder, $newLinkLi);
             });
+
+            $('.questions').on('click', '.add_answer_link', function(e) {
+                // prevent the link from creating a "#" on the URL
+                e.preventDefault();
+                // console.log($collectionHolder.data('answer-prototype'));
+                //
+                // console.log($(e.target).closest('.question').find(':input[type=text]').length);
+
+                var $answerPrototype = $collectionHolder.data('answer-prototype');
+
+                // get the new index
+                var questionContainer = $(e.target).closest('.question')[0].innerHTML;
+                // console.log(questionContainer);
+                var questionIndex = questionContainer.match(/[0-9]+/)[0];
+                console.log('question-index=' + questionIndex);
+                // console.log(questionIndex);
+                var answerIndex = $(e.target).closest('.question').find(':input[type=text]').length;
+                console.log('answer-index=' + answerIndex);
+
+
+                var answerForm = $answerPrototype;
+                // console.log(answerForm);
+
+                answerForm = answerForm.replace(/__question_index__/g, questionIndex);
+                answerForm = answerForm.replace(/__answer_index__/g, answerIndex);
+
+                var $newFormLi = $('<li class="answer"></li>').append(answerForm);
+                // $newLinkLi.before($newFormLi);
+
+
+                // $(e.target).closest('.question').replaceWith($collectionHolder.data('answer-prototype'));
+                $(e.target).closest('.question').append($newFormLi);
+
+            });
         });
 
         function addQuestionForm($collectionHolder, $newLinkLi) {
@@ -58,6 +98,7 @@
             var index = $collectionHolder.data('index');
 
             var newForm = prototype;
+            // console.log(newForm);
             // You need this only if you didn't set 'label' => false in your tags field in TaskType
             // Replace '__name__label__' in the prototype's HTML to
             // instead be a number based on how many items we have
@@ -65,19 +106,26 @@
 
             // Replace '__name__' in the prototype's HTML to
             // instead be a number based on how many items we have
-            newForm = newForm.replace(/__name__/g, index);
+            newForm = newForm.replace(/__question_index__/g, index);
+            // console.log(newForm);
 
             // increase the index with one for the next item
             $collectionHolder.data('index', index + 1);
 
             // Display the form in the page in an li, before the "Add a tag" link li
-            var $newFormLi = $('<li></li>').append(newForm);
+            var $newFormLi = $('<li class="question"></li>').append(newForm);
+            // console.log($newFormLi);
+
+            var $addAnswerLink = $('<li><a href="#" class="add_answer_link">Add an answer</a></li><br/>');
+            $newFormLi.append($addAnswerLink);
+
+
             $newLinkLi.before($newFormLi);
             addQuestionFormDeleteLink($newFormLi);
         }
 
         function addQuestionFormDeleteLink($questionFormLi) {
-            var $removeFormA = $('<a href="#">delete this question</a>');
+            var $removeFormA = $('<a href="#">Delete this question</a>');
             $questionFormLi.append($removeFormA);
 
             $removeFormA.on('click', function(e) {

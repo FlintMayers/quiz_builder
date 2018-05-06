@@ -23,7 +23,6 @@ class QuizType extends AbstractType
                 'title',
                 TextType::class,
                 [
-                    'attr' => ['class' => 'form-control'],
                     'label' => 'Quiz title',
                 ]
             )
@@ -36,13 +35,14 @@ class QuizType extends AbstractType
                     'allow_add' => true,
                     'by_reference' => false,
                     'allow_delete' => true,
+                    'prototype_name' => '__question_index__',
                 ]
             )
             ->add(
-                'Submit',
+                'save',
                 SubmitType::class,
                 [
-                    'attr' => ['class' => 'btn btn-primary'],
+                    'label' => 'Save',
                 ]
             );
     }

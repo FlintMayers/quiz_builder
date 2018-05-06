@@ -35,6 +35,7 @@ class QuestionType extends AbstractType
                     'allow_add' => true,
                     'by_reference' => false,
                     'allow_delete' => true,
+                    'prototype_name' => '__answer_index__',
                 ]
             );
     }

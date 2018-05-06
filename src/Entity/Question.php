@@ -100,7 +100,7 @@ class Question
 
     public function addAnswer(Answer $answer)
     {
-        $answer->setTag($this);
+        $answer->setQuestion($this);
 
         $this->answers->add($answer);
     }
