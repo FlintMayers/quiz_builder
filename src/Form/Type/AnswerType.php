@@ -22,9 +22,7 @@ class AnswerType extends AbstractType
                 'content',
                 TextType::class,
                 [
-//                    'attr' => ['class' => 'form-control'],
                     'label' => 'Answer',
-//                    'label' => 'Answer No__answer_number__',
                 ]
             )
             ->add(
@@ -32,8 +30,6 @@ class AnswerType extends AbstractType
                 CheckboxType::class,
                 [
                     'required' => false,
-//                    'attr' => ['class' => 'form-check-input'],
-//                    'label_attr' => ['class' => 'form-check-label'],
                 ]
             );
     }

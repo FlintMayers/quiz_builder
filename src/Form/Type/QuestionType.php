@@ -24,7 +24,6 @@ class QuestionType extends AbstractType
                 [
                     'attr' => ['class' => 'form-control'],
                     'label' => 'Question',
-//                    'label' => 'Question No__question_number__',
                 ]
             )
             ->add(

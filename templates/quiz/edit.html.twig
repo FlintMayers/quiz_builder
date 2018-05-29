@@ -17,12 +17,17 @@
                 {{ form_row(question.name) }}
                 <ul class="answers">
                     {% for answer in question.answers %}
-                        <li class="answer">{{ form_row(answer.content) }}
+                        <li class="answer">
+                            {{ form_row(answer.content) }}
+                            {{ form_row(answer.isCorrect) }}
+                            <a href="#" class="delete_answer_link">Delete this answer</a>
                         </li>
-                        <li>{{ form_row(answer.isCorrect) }}</li>
                     {% endfor %}
                 </ul>
-                <a href="#" class="delete_question_link" >Delete this question</a>
+                <a href="#" class="add_another_answer_link">Add an answer</a>
+                <br>
+                <a href="#" class="delete_question_link">Delete this question</a>
+                <br>
             </li>
         {% endfor %}
     </ul>
@@ -34,7 +39,7 @@
     <script>
         var $collectionHolder;
 
-        // setup an "add a question" link
+        // setup an "New question" link
         var $addQuestionLink = $('<button href="#" class="add_question_link btn btn-sucess">New question</button>');
         var $newLinkLi = $addQuestionLink;
 
@@ -50,18 +55,38 @@
 
             });
 
+            $collectionHolder.find('.delete_answer_link').each(function() {
+                $(this).on('click', function(e) {
+                    e.preventDefault();
+                    $(e.target).closest('.answer').remove();
+                });
+
+            });
+
             $('.add_question_link').on('click', function(e) {
                 e.preventDefault();
                 addQuestionForm($collectionHolder, $newLinkLi);
             });
 
-            // $('.add_answer_link').on('click', function(e) {
-            //     // prevent the link from creating a "#" on the URL
-            //     e.preventDefault();
-            //
-            //     // add a new tag form (see next code block)
-            //     addQuestionForm($collectionHolder, $newLinkLi);
-            // });
+            $('.add_another_answer_link').on('click', function(e) {
+                e.preventDefault();
+                var $answerPrototype = $collectionHolder.data('answer-prototype');
+                var questionContainer = $(e.target).closest('.question')[0].innerHTML;
+
+                var questionIndex = questionContainer.match(/[0-9]+/)[0];
+                var answerIndex = $(e.target).closest('.question').find(':input[type=checkbox]').length;
+
+                var answerForm = $answerPrototype;
+
+                answerForm = answerForm.replace(/__question_index__/g, questionIndex);
+                answerForm = answerForm.replace(/__answer_index__/g, answerIndex);
+                answerForm = answerForm.replace(/__answer_number__/g, answerIndex + 1);
+
+                var $newFormLi = $('<li class="answer"></li>').append(answerForm);
+                $(e.target).parent().find('.answers').append($newFormLi);
+
+                addAnswerFormDeleteLink($newFormLi);
+            });
 
             // add the "New Question" anchor and li to the tags ul
             $collectionHolder.append($newLinkLi);
@@ -82,10 +107,7 @@
                 // get the new index
                 var questionContainer = $(e.target).closest('.question')[0].innerHTML;
                 var questionIndex = questionContainer.match(/[0-9]+/)[0];
-                console.log('question-index=' + questionIndex);
                 var answerIndex = $(e.target).closest('.question').find(':input[type=checkbox]').length;
-                console.log('answer-index=' + answerIndex);
-
 
                 var answerForm = $answerPrototype;
 
@@ -93,14 +115,8 @@
                 answerForm = answerForm.replace(/__answer_index__/g, answerIndex);
                 answerForm = answerForm.replace(/__answer_number__/g, answerIndex + 1);
 
-                // if (answerIndex === 0) {
-                //     var $answersCollectionHolder = "<ul class='answers'></ul>";
-                //     $(e.target).closest('.question').append($answersCollectionHolder);
-                // }
                 var $newFormLi = $('<li class="answer"></li>').append(answerForm);
-                // $newLinkLi.before($newFormLi);
 
-                // $(e.target).closest('.question').replaceWith($collectionHolder.data('answer-prototype'));
                 $(e.target).parent().prev().append($newFormLi);
 
                 addAnswerFormDeleteLink($newFormLi);
@@ -110,21 +126,13 @@
 
         function addQuestionForm($collectionHolder, $newLinkLi) {
             var prototype = $collectionHolder.data('prototype');
-            console.log(prototype);
 
             // get the new index
             var index = $collectionHolder.data('index');
 
             var newForm = prototype;
-            // Replace '__name__label__' in the prototype's HTML to
-            // instead be a number based on how many items we have
-            // newForm = newForm.replace(/__name__label__/g, index);
-
-            // Replace '__name__' in the prototype's HTML to
-            // instead be a number based on how many items we have
             newForm = newForm.replace(/__question_index__/g, index);
             newForm = newForm.replace(/__question_number__/g, index + 1);
-            // console.log(newForm);
 
             // increase the index with one for the next item
             $collectionHolder.data('index', index + 1);
@@ -150,7 +158,7 @@
         }
 
         function addAnswerFormDeleteLink($questionFormLi) {
-            var $removeFormA = $('<a href="#">Delete this answer</a>');
+            var $removeFormA = $('<a href="#" class="delete_answer_link">Delete this answer</a>');
             $questionFormLi.append($removeFormA);
 
             $removeFormA.on('click', function(e) {
