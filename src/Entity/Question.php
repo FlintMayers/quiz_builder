@@ -31,7 +31,7 @@ class Question
     private $quiz;
 
     /**
-     * @ORM\OneToMany(targetEntity="Answer", mappedBy="Question", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="Answer", mappedBy="question", cascade={"persist", "remove"})
      */
     protected $answers;
 

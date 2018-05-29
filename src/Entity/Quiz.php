@@ -26,7 +26,7 @@ class Quiz
     protected $title;
 
     /**
-     * @ORM\OneToMany(targetEntity="Question", mappedBy="Quiz", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="Question", mappedBy="quiz", cascade={"persist", "remove"})
      */
     protected $questions;
 

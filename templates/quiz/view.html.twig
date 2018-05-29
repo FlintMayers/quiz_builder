@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <a href="{{ path('quiz_index') }}">
+        Back to quizzes
+    </a>
+
+    <h3 class="text-center mt-5">Quiz: {{ quiz.title }}
+        <a class="btn btn-sm btn-warning"
+           href="{{ path('edit_quiz', {'id': quiz.id}) }}">
+            Edit
+        </a>
+    </h3>
+
+    <h5>Questions</h5>
+
+    <ol>
+    {% for question in quiz.questions %}
+        <li>{{ question.name }}</li>
+            <ol>
+                {% for answer in question.answers %}
+                    <li>
+                        {{ answer.content }}
+                        {% if answer.isCorrect %}
+                            <i class="fas fa-check"></i>
+                        {% else %}
+                            <i class="fas fa-times"></i>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ol>
+    {% endfor %}
+    </ol>
+{% endblock %}
+

@@ -2,13 +2,19 @@
 
 {% block body %}
 
-    <h3 class="text-center mt-5 mb-5">Quiz list</h3>
+    <h3 class="text-center mt-5 mb-5">
+        Quiz list
+        <a class="btn btn-success" href="{{ path('create_quiz') }}">
+            New <i class="fas fa-plus"></i>
+        </a>
+    </h3>
 
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">#</th>
+                <th scope="col">Id</th>
                 <th scope="col">Title</th>
+                <th scope="col">Questions</th>
                 <th scope="col">Actions</th>
             </tr>
         </thead>
@@ -17,8 +23,15 @@
             <tr>
                 <th scope="row">{{ quiz.id }}</th>
                 <td>{{ quiz.title }}</td>
+                <td>{{ quiz.questions|length }}</td>
                 <td>
-                    <a href="{{ path('delete_quiz', {'id': quiz.id}) }}">
+                    <a class="btn btn-sm btn-success" href="{{ path('view_quiz', {'id': quiz.id}) }}">
+                        View
+                    </a>
+                    <a class="btn btn-sm btn-warning" href="{{ path('edit_quiz', {'id': quiz.id}) }}">
+                        Edit
+                    </a>
+                    <a class="btn btn-sm btn-danger" href="{{ path('delete_quiz', {'id': quiz.id}) }}">
                         Delete
                     </a>
                 </td>

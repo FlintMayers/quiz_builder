@@ -7,9 +7,10 @@ use App\Entity\Quiz;
 use App\Entity\Question;
 use App\Form\Type\QuizType;
 use Doctrine\Common\Collections\ArrayCollection;
-use http\Env\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class QuizController extends Controller
@@ -17,8 +18,10 @@ class QuizController extends Controller
     /**
      * @Route("/quiz/create", name="create_quiz")
      * @param Request $request
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function new(Request $request)
+    public function new(Request $request): Response
     {
         $quiz = new Quiz();
 
@@ -29,10 +32,11 @@ class QuizController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-//            dump($form->getData());die;
             $em = $this->getDoctrine()->getManager();
             $em->persist($quiz);
             $em->flush();
+
+            return $this->redirectToRoute('quiz_index');
 
         }
 
@@ -45,9 +49,55 @@ class QuizController extends Controller
     }
 
     /**
-     * @Route("/quizzes", name="list_quizzes")
+     * @Route("/quiz/{id}/edit", name="edit_quiz")
+     * @param Request $request
+     * @param int $id
+     *
+     * @return RedirectResponse|Response
      */
-    public function list()
+    public function edit(Request $request, $id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $quizRepository = $em->getRepository(Quiz::class);
+
+        $quiz = $quizRepository->find($id);
+
+        $originalQuestions = new ArrayCollection();
+
+        foreach ($quiz->getQuestions() as $question) {
+            $originalQuestions->add($question);
+        }
+
+
+        $form = $this->createForm(QuizType::class, $quiz);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $this->deleteQuizAndRelations($id);
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($quiz);
+            $em->flush();
+
+            return $this->redirectToRoute('quiz_index');
+
+        }
+
+        return $this->render(
+            'quiz/edit.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
+    }
+
+    /**
+     * @Route("/index", name="quiz_index")
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function list(): Response
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -63,15 +113,67 @@ class QuizController extends Controller
 
     /**
      * @Route("/quiz/{id}/delete", name="delete_quiz")
+     * @param Request $request
+     * @param int $id
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function delete(Request $request, $id)
+    public function delete(Request $request, $id): RedirectResponse
     {
-//        dump($quiz);die;
-//        $em = $this->getDoctrine()->getManager();
-//        $quiz = $em->getRepository(Quiz::class)->find($quiz);
-//        $em->remove($quiz);
-//
-//        $em->flush();
+        $this->deleteQuizAndRelations($id);
+
+        return $this->redirectToRoute('quiz_index');
+    }
+
+    /**
+     * @param int $id
+     */
+    private function deleteQuizAndRelations($id): void
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $quizRepository = $em->getRepository(Quiz::class);
+        $questionRepository = $em->getRepository(Question::class);
+        $answerRepository = $em->getRepository(Answer::class);
+
+        $quiz = $quizRepository->find($id);
+
+        $questions = $questionRepository->findBy(['quiz' => $quiz->getId()]);
+
+        foreach ($questions as $question) {
+            $answers = $answerRepository->findBy(['question' => $question]);
+            foreach ($answers as $answer) {
+                $em->remove($answer);
+            }
+            $em->remove($question);
+        }
+
+        $em->remove($quiz);
+        $em->flush();
+    }
+
+    /**
+     * @Route("/quiz/{id}/view", name="view_quiz")
+     *
+     * @param Request $request
+     * @param int $id
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function view(Request $request, $id): Response
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $quizRepository = $em->getRepository(Quiz::class);
+
+        $quiz = $quizRepository->find($id);
+
+        return $this->render(
+            'quiz/view.html.twig',
+            [
+                'quiz' => $quiz,
+            ]
+        );
     }
 
     /**
@@ -113,61 +215,5 @@ class QuizController extends Controller
         $question3->setName('question3');
         $question3->setQuiz($quiz);
         $quiz->getQuestions()->add($question3);
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($quiz);
-        $em->flush();
     }
-
-//    /**
-//     * @Route("/tasks/edit/{id}", name="edit_task")
-//     */
-//    public function edit($id, Request $request)
-//    {
-//        $entityManager = $this->getDoctrine()->getManager();
-//        $task = $entityManager->getRepository(Task::class)->find($id);
-//
-//        if (!$task) {
-//            throw $this->createNotFoundException('No task found for id '.$id);
-//        }
-//
-//        $originalTags = new ArrayCollection();
-//
-//        // Create an ArrayCollection of the current Tag objects in the database
-//        foreach ($task->getTags() as $tag) {
-//            $originalTags->add($tag);
-//        }
-//
-//        $editForm = $this->createForm(TaskType::class, $task);
-//
-//        $editForm->handleRequest($request);
-//
-//        if ($editForm->isValid()) {
-//
-//            // remove the relationship between the tag and the Task
-//            foreach ($originalTags as $tag) {
-//                if (false === $task->getTags()->contains($tag)) {
-//                    // remove the Task from the Tag
-//                    $tag->getTasks()->removeElement($task);
-//
-//                    // if it was a many-to-one relationship, remove the relationship like this
-//                    // $tag->setTask(null);
-//
-//                    $entityManager->persist($tag);
-//
-//                    // if you wanted to delete the Tag entirely, you can also do that
-//                    // $entityManager->remove($tag);
-//                }
-//            }
-//
-//            $entityManager->persist($task);
-//            $entityManager->flush();
-//
-//            // redirect back to some edit page
-//            return $this->redirectToRoute('task_edit', array('id' => $id));
-//        }
-//
-//        // render some form template
-//    }
-
 }

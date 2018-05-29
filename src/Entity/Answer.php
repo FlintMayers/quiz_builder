@@ -31,7 +31,7 @@ class Answer
     private $isCorrect;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Question", inversedBy="answers")
+     * @ORM\ManyToOne(targetEntity="Question", inversedBy="answers", cascade={"persist", "remove"})
      * @ORM\JoinColumn("question_id", referencedColumnName="id")
      */
     private $question;
