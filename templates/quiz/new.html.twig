@@ -32,7 +32,7 @@
         var $collectionHolder;
 
         // setup an "Add question" link
-        var $addQuestionLink = $('<button href="#" class="add_question_link btn btn-sucess">Add question</button>');
+        var $addQuestionLink = $('<button href="#" class="add_question_link btn btn-success">Add question</button>');
         var $newLinkLi = $addQuestionLink;
 
         $(document).ready(function() {
@@ -119,7 +119,7 @@
         }
 
         function addQuestionFormDeleteLink($questionFormLi) {
-            var $removeFormA = $('<a href="#">Delete this question</a>');
+            var $removeFormA = $('<a href="#" class="delete_question_link" ><span class="badge badge-danger">Delete question</span></a>');
             $questionFormLi.append($removeFormA);
 
             $removeFormA.on('click', function(e) {
@@ -129,7 +129,7 @@
         }
 
         function addAnswerFormDeleteLink($questionFormLi) {
-            var $removeFormA = $('<a href="#">Delete this answer</a>');
+            var $removeFormA = $('<a href="#" class="delete_answer_link"><span class="badge badge-warning">Delete answer</span></a>');
             $questionFormLi.append($removeFormA);
 
             $removeFormA.on('click', function(e) {
