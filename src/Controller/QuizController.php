@@ -25,8 +25,6 @@ class QuizController extends Controller
     {
         $quiz = new Quiz();
 
-//        $this->setDummyData($quiz);
-
         $form = $this->createForm(QuizType::class, $quiz);
 
         $form->handleRequest($request);
@@ -68,20 +66,15 @@ class QuizController extends Controller
             $originalQuestions->add($question);
         }
 
-
         $form = $this->createForm(QuizType::class, $quiz);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->deleteQuizAndRelations($id);
-
-            $em = $this->getDoctrine()->getManager();
             $em->persist($quiz);
             $em->flush();
 
             return $this->redirectToRoute('quiz_index');
-
         }
 
         return $this->render(
@@ -120,36 +113,13 @@ class QuizController extends Controller
      */
     public function delete(Request $request, $id): RedirectResponse
     {
-        $this->deleteQuizAndRelations($id);
-
-        return $this->redirectToRoute('quiz_index');
-    }
-
-    /**
-     * @param int $id
-     */
-    private function deleteQuizAndRelations($id): void
-    {
         $em = $this->getDoctrine()->getManager();
-
         $quizRepository = $em->getRepository(Quiz::class);
-        $questionRepository = $em->getRepository(Question::class);
-        $answerRepository = $em->getRepository(Answer::class);
-
         $quiz = $quizRepository->find($id);
-
-        $questions = $questionRepository->findBy(['quiz' => $quiz->getId()]);
-
-        foreach ($questions as $question) {
-            $answers = $answerRepository->findBy(['question' => $question]);
-            foreach ($answers as $answer) {
-                $em->remove($answer);
-            }
-            $em->remove($question);
-        }
-
         $em->remove($quiz);
         $em->flush();
+
+        return $this->redirectToRoute('quiz_index');
     }
 
     /**
