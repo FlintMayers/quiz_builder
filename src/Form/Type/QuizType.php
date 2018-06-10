@@ -37,13 +37,6 @@ class QuizType extends AbstractType
                     'allow_delete' => true,
                     'prototype_name' => '__question_index__',
                 ]
-            )
-            ->add(
-                'save',
-                SubmitType::class,
-                [
-                    'label' => 'Save',
-                ]
             );
     }
 
